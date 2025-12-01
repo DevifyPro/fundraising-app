@@ -61,7 +61,7 @@ export async function POST() {
         type: "account_onboarding",
       });
 
-      return NextResponse.redirect(accountLink.url);
+      return NextResponse.json({ url: accountLink.url });
     } catch (stripeError: any) {
       console.error("Stripe account link creation failed:", stripeError);
       return NextResponse.json(

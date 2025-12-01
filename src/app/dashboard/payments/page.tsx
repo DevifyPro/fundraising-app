@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import StripeConnectButton from "@/components/StripeConnectButton";
 
 export default async function PaymentsPage() {
   const user = await getCurrentUser();
@@ -52,18 +53,9 @@ export default async function PaymentsPage() {
               </p>
             )}
           </div>
-          <form
-            action="/api/payments/stripe/connect"
-            method="POST"
-            className="mt-4"
-          >
-            <button
-              type="submit"
-              className="rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-medium text-white hover:bg-zinc-800"
-            >
-              {stripeConnected ? "Manage Stripe account" : "Connect Stripe"}
-            </button>
-          </form>
+          <div className="mt-4">
+            <StripeConnectButton isConnected={stripeConnected} />
+          </div>
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
