@@ -10,11 +10,13 @@ export default function NewCampaignForm() {
   const [goalAmount, setGoalAmount] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [error, setError] = useState<string | null>(null);
+   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
     setLoading(true);
     try {
       const res = await fetch("/api/campaigns", {
@@ -29,7 +31,24 @@ export default function NewCampaignForm() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(typeof data.error === "string" ? data.error : "Failed to create campaign");
+        if (data?.error?.fieldErrors) {
+          const fe: Record<string, string> = {};
+          for (const [key, messages] of Object.entries(
+            data.error.fieldErrors as Record<string, string[]>,
+          )) {
+            if (messages && messages.length > 0) {
+              fe[key] = messages[0];
+            }
+          }
+          setFieldErrors(fe);
+          setError("Please fix the highlighted fields.");
+        } else {
+          setError(
+            typeof data.error === "string"
+              ? data.error
+              : "Failed to create campaign",
+          );
+        }
         return;
       }
       const data = await res.json();
@@ -52,6 +71,9 @@ export default function NewCampaignForm() {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+        {fieldErrors.title && (
+          <p className="mt-1 text-[11px] text-red-600">{fieldErrors.title}</p>
+        )}
       </div>
       <div>
         <label className="block text-xs font-medium text-zinc-700">
@@ -64,6 +86,9 @@ export default function NewCampaignForm() {
           onChange={(e) => setStory(e.target.value)}
           required
         />
+        {fieldErrors.story && (
+          <p className="mt-1 text-[11px] text-red-600">{fieldErrors.story}</p>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -78,6 +103,11 @@ export default function NewCampaignForm() {
             onChange={(e) => setGoalAmount(e.target.value)}
             required
           />
+          {fieldErrors.goalAmount && (
+            <p className="mt-1 text-[11px] text-red-600">
+              {fieldErrors.goalAmount}
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-xs font-medium text-zinc-700">
