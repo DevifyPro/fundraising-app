@@ -1,3 +1,47 @@
+# Fundraising Platform
+
+A simple GoFundMe-style fundraising platform built with Next.js, Prisma, and PostgreSQL.
+
+## Getting started
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Configure environment:
+
+Create a `.env` file with:
+
+```bash
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/DB_NAME"
+AUTH_SECRET="a-long-random-secret"
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+3. Run Prisma migrations:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+4. Start the dev server:
+
+```bash
+npm run dev
+```
+
+## Available scripts
+
+- `npm run dev` – start Next.js dev server
+- `npm run build` – build for production
+- `npm run start` – start production server
+- `npm run lint` – run ESLint
+- `npm run test` – run Vitest test suite
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
