@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import StripeConnectButton from "@/components/StripeConnectButton";
+import { stripe } from "@/lib/stripe";
 
 export default async function PaymentsPage() {
   const user = await getCurrentUser();
@@ -9,7 +10,7 @@ export default async function PaymentsPage() {
     redirect("/login");
   }
 
-  const fullUser = await prisma.user.findUnique({
+  let fullUser = await prisma.user.findUnique({
     where: { id: user.id },
     select: {
       stripeAccountId: true,
@@ -19,6 +20,33 @@ export default async function PaymentsPage() {
       preferredPayoutProvider: true,
     },
   });
+
+  // If we have a Stripe account ID but onboarding isn't marked complete yet,
+  // check with Stripe and update once.
+  if (
+    fullUser?.stripeAccountId &&
+    !fullUser.stripeOnboardingComplete &&
+    stripe
+  ) {
+    try {
+      const account = await stripe.accounts.retrieve(fullUser.stripeAccountId);
+      if (account.details_submitted) {
+        fullUser = await prisma.user.update({
+          where: { id: user.id },
+          data: { stripeOnboardingComplete: true },
+          select: {
+            stripeAccountId: true,
+            stripeOnboardingComplete: true,
+            paypalMerchantId: true,
+            paypalOnboardingComplete: true,
+            preferredPayoutProvider: true,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Failed to refresh Stripe onboarding status:", error);
+    }
+  }
 
   const stripeConnected = !!fullUser?.stripeOnboardingComplete;
   const paypalConnected = !!fullUser?.paypalOnboardingComplete;
