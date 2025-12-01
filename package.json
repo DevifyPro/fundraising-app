@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "postinstall": "prisma migrate deploy"
+    "postinstall": "prisma migrate deploy && prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.0.1",
